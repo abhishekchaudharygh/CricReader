@@ -38,3 +38,15 @@ class S3CSVReader:
         except Exception as e:
             print(f"Error reading CSV from S3: {e}")
             return None
+
+    def get_graph_signed_url(self, bucket_name, file_name, image_buffer):
+        self.s3.upload_fileobj(image_buffer, bucket_name, file_name)
+
+        # Generate a signed URL for the uploaded file
+        expiration = 3600  # Time in seconds for the URL to remain valid
+        signed_url = self.s3.generate_presigned_url('get_object',
+                                                    Params={'Bucket': bucket_name,
+                                                            'Key': file_name},
+                                                    ExpiresIn=expiration)
+
+        return signed_url

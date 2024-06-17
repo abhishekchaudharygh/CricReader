@@ -10,7 +10,7 @@ class AnalyserServices(MethodView):
 class TopRunScorerForTeam(MethodView):
     def get(self, team_name, n, *args, **kwargs):
         top_n_run_scorers = top_scorers_team(team_name=team_name, n=n)
-        return top_n_run_scorers
+        return {"top_n_run_scorers" : top_n_run_scorers}
 
 
 class TopRunScorer(MethodView):

@@ -1,11 +1,15 @@
 import pandas as pd
 from src.services.aws_services import S3CSVReader
+import matplotlib.pyplot as plt
+from io import BytesIO
 
 
 def get_csv_from_s3(bucket_name, file_path):
     s3_reader = S3CSVReader()
     df = s3_reader.read_csv_from_s3(bucket_name, file_path)
     return df
+
+
 
 
 def top_scorers_team(team_name, n):
@@ -16,7 +20,19 @@ def top_scorers_team(team_name, n):
     team_batsman_runs_sum.rename(columns={'batsman_runs': 'total_batsman_runs'}, inplace=True)
     team_batsman_runs_sum = team_batsman_runs_sum.sort_values(by='total_batsman_runs', ascending=False)
     top_n_run_scorers = team_batsman_runs_sum.head(n)
-    return top_n_run_scorers.values.tolist()
+    plt.bar(top_n_run_scorers['batter'], top_n_run_scorers['total_batsman_runs'])
+    plt.xlabel('Batter')
+    plt.ylabel('Runs Scored')
+    plt.title(f'Top run scorers')
+    image_buffer = BytesIO()
+    plt.savefig(image_buffer, format='png')
+    image_buffer.seek(0)
+    import time
+    current_timestamp = time.time()
+    time = int(current_timestamp)
+    file_name = f"img_{time}.png"
+    graph = S3CSVReader.get_graph_signed_url(bucket_name="abhishekchaudhary", file_name=file_name, image_buffer=image_buffer)
+    return graph
 
 
 def top_scorers(n):
